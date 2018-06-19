@@ -9401,7 +9401,7 @@ BOOST_AUTO_TEST_CASE(failed_create)
 		contract C {
 			uint public x;
 			constructor() public payable {}
-			function f(uint amount) public returns (address) {
+			function f(uint amount) public returns (D) {
 				x++;
 				return (new D).value(amount)();
 			}
@@ -12505,10 +12505,10 @@ BOOST_AUTO_TEST_CASE(staticcall_for_view_and_pure)
 				return (new C()).f();
 			}
 			function fview() public returns (uint) {
-				return (CView(new C())).f();
+				return (CView(address(new C()))).f();
 			}
 			function fpure() public returns (uint) {
-				return (CPure(new C())).f();
+				return (CPure(address(new C()))).f();
 			}
 		}
 	)";
