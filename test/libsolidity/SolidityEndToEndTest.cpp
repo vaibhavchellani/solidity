@@ -12447,6 +12447,78 @@ BOOST_AUTO_TEST_CASE(senders_balance)
 	BOOST_CHECK(callContractFunction("f()") == encodeArgs(u256(27)));
 }
 
+BOOST_AUTO_TEST_CASE(abi_decode_trivial)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f(bytes data) public view returns (uint) {
+				return abi.decode(data, uint);
+			}
+		}
+	)";
+	compileAndRun(sourceCode);
+	ABI_CHECK(callContractFunction("f(bytes)", 0x20, 0x20, 33), encodeArgs(u256(33)));
+}
+
+BOOST_AUTO_TEST_CASE(abi_encode_decode_simple)
+{
+	char const* sourceCode = R"XX(
+		contract C {
+			function f() public view returns (uint, bytes) {
+				return abi.decode(abi.encode(uint(33), bytes("abcdefg")), uint, bytes);
+			}
+		}
+	)XX";
+	compileAndRun(sourceCode);
+	ABI_CHECK(
+		callContractFunction("f(bytes)"),
+		encodeArgs(33, 0x20, 7, "abcdefgh")
+	);
+}
+
+BOOST_AUTO_TEST_CASE(abi_decode_simple)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f(bytes data) public view returns (uint, bytes) {
+				return abi.decode(data, uint, bytes);
+			}
+		}
+	)";
+	compileAndRun(sourceCode);
+	ABI_CHECK(
+		callContractFunction("f(bytes)", 0x20, 0x20 * 4, 33, 0x40, 7, "abcdefg"),
+		encodeArgs(33, 0x40, 7, "abcdefgh")
+	);
+}
+
+BOOST_AUTO_TEST_CASE(abi_decode_v2)
+{
+	char const* sourceCode = R"(
+		pragma experimental ABIEncoderV2;
+		contract C {
+			struct S { uint a; uint[] b; }
+			function f() public view returns (S memory) {
+				S memory s;
+				s.a = 8;
+				s.b = new uint[](3);
+				s.b[0] = 9;
+				s.b[1] = 10;
+				s.b[2] = 11;
+				return abi.decode(abi.encode(s), S);
+			}
+		}
+	)";
+	compileAndRun(sourceCode);
+	ABI_CHECK(
+		callContractFunction("f()"),
+		encodeArgs(8, 0x40, 3, 9, 10, 11)
+	);
+}
+
+// TODO test abi.decode with calldata bytes
+
+
 BOOST_AUTO_TEST_SUITE_END()
 
 }
