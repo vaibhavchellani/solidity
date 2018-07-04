@@ -478,9 +478,11 @@ bool DeclarationRegistrationHelper::registerDeclaration(
 		for (auto const* decl: _container.enclosingContainer()->resolveName(name, true, true))
 			// Do not warn about functions shadowing a contract.
 			if (
-				!(dynamic_cast<ContractDefinition const*>(decl) &&
-				dynamic_cast<FunctionDefinition const*>(&_declaration) &&
-				name == decl->name())
+				!(
+					dynamic_cast<ContractDefinition const*>(decl) &&
+					dynamic_cast<FunctionDefinition const*>(&_declaration) &&
+					name == decl->name()
+				)
 			)
 				shadowedDeclaration = decl;
 
