@@ -144,7 +144,7 @@ public:
 		Integer, RationalNumber, StringLiteral, Bool, FixedPoint, Array,
 		FixedBytes, Contract, Struct, Function, Enum, Tuple,
 		Mapping, TypeType, Modifier, Magic, Module,
-		InaccessibleDynamic
+		InaccessibleDynamic, Void
 	};
 
 	/// @{
@@ -846,6 +846,21 @@ private:
 	EnumDefinition const& m_enum;
 };
 
+class VoidType: public Type
+{
+public:
+	virtual Category category() const override { return Category::Void; }
+	explicit VoidType() {}
+
+	virtual std::string richIdentifier() const override
+	{ return "t_void"; }
+	virtual std::string toString(bool) const override { return "void"; }
+	virtual u256 storageSize() const override { return 0; }
+	virtual unsigned storageBytes() const override { return 0; }
+	virtual bool canBeStored() const { return false; }
+	virtual unsigned sizeOnStack() const { return 0; }
+};
+
 /**
  * Type that can hold a finite sequence of values of different types.
  * In some cases, the components are empty pointers (when used as placeholders).
@@ -854,7 +869,8 @@ class TupleType: public Type
 {
 public:
 	virtual Category category() const override { return Category::Tuple; }
-	explicit TupleType(std::vector<TypePointer> const& _types = std::vector<TypePointer>()): m_components(_types) {}
+	explicit TupleType(std::vector<TypePointer> const& _types): m_components(_types)
+	{ solAssert(m_components.size() > 1, "Tuple type with less than two components."); }
 	virtual bool isImplicitlyConvertibleTo(Type const& _other) const override;
 	virtual std::string richIdentifier() const override;
 	virtual bool operator==(Type const& _other) const override;

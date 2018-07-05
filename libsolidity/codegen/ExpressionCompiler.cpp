@@ -211,7 +211,7 @@ bool ExpressionCompiler::visit(Assignment const& _assignment)
 	Type const& leftType = *_assignment.leftHandSide().annotation().type;
 	if (leftType.category() == Type::Category::Tuple)
 	{
-		solAssert(*_assignment.annotation().type == TupleType(), "");
+		solAssert(_assignment.annotation().type->category() == Type::Category::Void, "");
 		solAssert(op == Token::Assign, "");
 	}
 	else

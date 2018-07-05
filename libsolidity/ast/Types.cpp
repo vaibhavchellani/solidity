@@ -498,7 +498,7 @@ TypePointer IntegerType::unaryOperatorResult(Token::Value _operator) const
 {
 	// "delete" is ok for all integer types
 	if (_operator == Token::Delete)
-		return make_shared<TupleType>();
+		return make_shared<VoidType>();
 	// no further unary operators for addresses
 	else if (isAddress())
 		return TypePointer();
@@ -649,7 +649,7 @@ TypePointer FixedPointType::unaryOperatorResult(Token::Value _operator) const
 	{
 	case Token::Delete:
 		// "delete" is ok for all fixed types
-		return make_shared<TupleType>();
+		return make_shared<VoidType>();
 	case Token::Add:
 	case Token::Sub:
 	case Token::Inc:
@@ -1322,7 +1322,7 @@ TypePointer FixedBytesType::unaryOperatorResult(Token::Value _operator) const
 {
 	// "delete" and "~" is okay for FixedBytesType
 	if (_operator == Token::Delete)
-		return make_shared<TupleType>();
+		return make_shared<VoidType>();
 	else if (_operator == Token::BitNot)
 		return shared_from_this();
 
@@ -1382,7 +1382,7 @@ u256 BoolType::literalValue(Literal const* _literal) const
 TypePointer BoolType::unaryOperatorResult(Token::Value _operator) const
 {
 	if (_operator == Token::Delete)
-		return make_shared<TupleType>();
+		return make_shared<VoidType>();
 	return (_operator == Token::Not) ? shared_from_this() : TypePointer();
 }
 
@@ -1431,7 +1431,7 @@ TypePointer ContractType::unaryOperatorResult(Token::Value _operator) const
 {
 	if (isSuper())
 		return TypePointer{};
-	return _operator == Token::Delete ? make_shared<TupleType>() : TypePointer();
+	return _operator == Token::Delete ? make_shared<VoidType>() : TypePointer();
 }
 
 TypePointer ReferenceType::unaryOperatorResult(Token::Value _operator) const
@@ -1445,9 +1445,9 @@ TypePointer ReferenceType::unaryOperatorResult(Token::Value _operator) const
 	case DataLocation::CallData:
 		return TypePointer();
 	case DataLocation::Memory:
-		return make_shared<TupleType>();
+		return make_shared<VoidType>();
 	case DataLocation::Storage:
-		return m_isPointer ? TypePointer() : make_shared<TupleType>();
+		return m_isPointer ? TypePointer() : make_shared<VoidType>();
 	default:
 		solAssert(false, "");
 	}
@@ -2174,7 +2174,7 @@ bool StructType::recursive() const
 
 TypePointer EnumType::unaryOperatorResult(Token::Value _operator) const
 {
-	return _operator == Token::Delete ? make_shared<TupleType>() : TypePointer();
+	return _operator == Token::Delete ? make_shared<VoidType>() : TypePointer();
 }
 
 string EnumType::richIdentifier() const
@@ -2334,7 +2334,10 @@ TypePointer TupleType::closestTemporaryType(TypePointer const& _targetType) cons
 			solAssert(tempComponents[ti], "");
 		}
 	}
-	return make_shared<TupleType>(tempComponents);
+	if (tempComponents.size() > 1)
+		return make_shared<TupleType>(tempComponents);
+	else
+		return tempComponents.front();
 }
 
 FunctionType::FunctionType(FunctionDefinition const& _function, bool _isInternal):
@@ -2610,7 +2613,7 @@ bool FunctionType::isExplicitlyConvertibleTo(Type const& _convertTo) const
 TypePointer FunctionType::unaryOperatorResult(Token::Value _operator) const
 {
 	if (_operator == Token::Value::Delete)
-		return make_shared<TupleType>();
+		return make_shared<VoidType>();
 	return TypePointer();
 }
 

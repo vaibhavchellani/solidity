@@ -1201,10 +1201,15 @@ bool TypeChecker::visit(VariableDeclarationStatement const& _statement)
 				else
 					solAssert(false, "");
 			}
-			else if (*var.annotation().type == TupleType())
+			else if (var.annotation().type->category() == Type::Category::Tuple)
 				m_errorReporter.typeError(
 					var.location(),
 					"Cannot declare variable with void (empty tuple) type."
+				);
+			else if (var.annotation().type->category() == Type::Category::Void)
+				m_errorReporter.typeError(
+					var.location(),
+					"Cannot declare variable with void type."
 				);
 			else if (valueComponentType->category() == Type::Category::RationalNumber)
 			{
@@ -1358,7 +1363,7 @@ bool TypeChecker::visit(Assignment const& _assignment)
 				"Compound assignment is not allowed for tuple types."
 			);
 		// Sequenced assignments of tuples is not valid, make the result a "void" type.
-		_assignment.annotation().type = make_shared<TupleType>();
+		_assignment.annotation().type = make_shared<VoidType>();
 
 		expectType(_assignment.rightHandSide(), *tupleType);
 
@@ -1452,16 +1457,21 @@ bool TypeChecker::visit(TupleExpression const& _tuple)
 				components[i]->accept(*this);
 				types.push_back(type(*components[i]));
 
-				if (types[i]->category() == Type::Category::Tuple)
-					if (dynamic_cast<TupleType const&>(*types[i]).components().empty())
-					{
-						if (_tuple.isInlineArray())
-							m_errorReporter.fatalTypeError(components[i]->location(), "Array component cannot be empty.");
-						if (v050)
-							m_errorReporter.fatalTypeError(components[i]->location(), "Tuple component cannot be empty.");
-						else
-							m_errorReporter.warning(components[i]->location(), "Tuple component cannot be empty.");
-					}
+				if (types[i]->category() == Type::Category::Tuple && dynamic_cast<TupleType const&>(*types[i]).components().empty())
+				{
+					if (_tuple.isInlineArray())
+						m_errorReporter.fatalTypeError(components[i]->location(), "Array component cannot be empty.");
+					if (v050)
+						m_errorReporter.fatalTypeError(components[i]->location(), "Tuple component cannot be empty.");
+					else
+						m_errorReporter.warning(components[i]->location(), "Tuple component cannot be empty.");
+				}
+				else if (types[i]->category() == Type::Category::Void)
+				{
+					if (_tuple.isInlineArray())
+						m_errorReporter.fatalTypeError(components[i]->location(), "Array component cannot be void.");
+					m_errorReporter.fatalTypeError(components[i]->location(), "Tuple component cannot be void.");
+				}
 
 				// Note: code generation will visit each of the expression even if they are not assigned from.
 				if (types[i]->category() == Type::Category::RationalNumber && components.size() > 1)
@@ -1680,7 +1690,7 @@ bool TypeChecker::visit(FunctionCall const& _functionCall)
 	if (!functionType)
 	{
 		m_errorReporter.typeError(_functionCall.location(), "Type is not callable");
-		_functionCall.annotation().type = make_shared<TupleType>();
+		_functionCall.annotation().type = make_shared<VoidType>();
 		return false;
 	}
 
@@ -1690,6 +1700,8 @@ bool TypeChecker::visit(FunctionCall const& _functionCall)
 		functionType->returnParameterTypesWithoutDynamicTypes();
 	if (returnTypes.size() == 1)
 		_functionCall.annotation().type = returnTypes.front();
+	else if (returnTypes.empty())
+		_functionCall.annotation().type = make_shared<VoidType>();
 	else
 		_functionCall.annotation().type = make_shared<TupleType>(returnTypes);
 
