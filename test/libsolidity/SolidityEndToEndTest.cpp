@@ -9459,7 +9459,7 @@ BOOST_AUTO_TEST_CASE(payable_function_calls_library)
 			function f() public returns (uint) { return 7; }
 		}
 		contract C {
-			function f() payable public returns (uint) {
+			function f() public payable returns (uint) {
 				return L.f();
 			}
 		}
