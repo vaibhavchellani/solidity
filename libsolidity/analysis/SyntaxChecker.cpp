@@ -209,7 +209,7 @@ bool SyntaxChecker::visit(FunctionDefinition const& _function)
 	bool const v050 = m_sourceUnit->annotation().experimentalFeatures.count(ExperimentalFeature::V050);
 
 	if (_function.noVisibilitySpecified())
-		m_errorReporter.syntaxError(_function.location(), "No visibility specified.");
+		m_errorReporter.syntaxError(_function.location(), "No visibility specified. Did you intend to add \"public\"?");
 
 	if (_function.isOldStyleConstructor())
 	{

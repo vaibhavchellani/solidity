@@ -3,5 +3,5 @@ contract C {
     function() {}
 }
 // ----
-// SyntaxError: (90-103): No visibility specified.
+// SyntaxError: (90-103): No visibility specified. Did you intend to add "public"?
 // TypeError: (90-103): Fallback function must be defined as "external".
