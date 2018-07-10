@@ -487,7 +487,7 @@ Another example that uses external function types::
 
     contract OracleUser {
       Oracle constant oracle = Oracle(0x1234567); // known contract
-      function buySomething() {
+      function buySomething() public {
         oracle.query("USD", this.oracleResponse);
       }
       function oracleResponse(bytes response) public {
@@ -983,4 +983,3 @@ converted to a matching size. This makes alignment and padding explicit::
     uint16 x = 0xffff;
     bytes32(uint256(x)); // pad on the left
     bytes32(bytes2(x)); // pad on the right
-
