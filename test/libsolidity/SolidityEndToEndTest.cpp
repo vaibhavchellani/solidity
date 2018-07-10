@@ -4363,7 +4363,7 @@ BOOST_AUTO_TEST_CASE(fixed_arrays_in_storage)
 			function setID(uint index, uint id) public { ids[index] = id; }
 			function setData(uint index, uint x, uint y) public { data[index].x = x; data[index].y = y; }
 			function getID(uint index) public returns (uint) { return ids[index]; }
-			function getData(uint index) public returns (uint x, uint y) public { x = data[index].x; y = data[index].y; }
+			function getData(uint index) public returns (uint x, uint y) { x = data[index].x; y = data[index].y; }
 			function getLengths() public returns (uint l1, uint l2) public { l1 = data.length; l2 = ids.length; }
 		}
 	)";
@@ -9279,7 +9279,7 @@ BOOST_AUTO_TEST_CASE(mutex)
 		contract Fund is mutexed {
 			uint shares;
 			constructor() public payable { shares = msg.value; }
-			function withdraw(uint amount) public returns (uint) {
+			function withdraw(uint amount) external returns (uint) {
 				// NOTE: It is very bad practice to write this function this way.
 				// Please refer to the documentation of how to do this properly.
 				if (amount > shares) throw;
@@ -9287,7 +9287,7 @@ BOOST_AUTO_TEST_CASE(mutex)
 				shares -= amount;
 				return shares;
 			}
-			function withdrawUnprotected(uint amount) public returns (uint) {
+			function withdrawUnprotected(uint amount) external returns (uint) {
 				// NOTE: It is very bad practice to write this function this way.
 				// Please refer to the documentation of how to do this properly.
 				if (amount > shares) throw;
