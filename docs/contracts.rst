@@ -841,10 +841,10 @@ Details are given in the following example.
 
 ::
 
-    pragma solidity ^0.4.22;
+    pragma solidity >0.4.24;
 
     contract owned {
-        constructor() { owner = msg.sender; }
+        constructor() public { owner = msg.sender; }
         address owner;
     }
 
@@ -853,7 +853,7 @@ Details are given in the following example.
     // internal functions and state variables. These cannot be
     // accessed externally via `this`, though.
     contract mortal is owned {
-        function kill() {
+        function kill() public {
             if (msg.sender == owner) selfdestruct(owner);
         }
     }
@@ -875,7 +875,7 @@ Details are given in the following example.
     // also a base class of `mortal`, yet there is only a single
     // instance of `owned` (as for virtual inheritance in C++).
     contract named is owned, mortal {
-        constructor(bytes32 name) {
+        constructor(bytes32 name) public {
             Config config = Config(0xD5f9D8D94886E70b06E474c3fB14Fd43E2f23970);
             NameReg(config.lookup(1)).register(name);
         }
