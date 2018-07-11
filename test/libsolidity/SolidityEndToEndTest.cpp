@@ -9279,7 +9279,7 @@ BOOST_AUTO_TEST_CASE(mutex)
 		contract Fund is mutexed {
 			uint shares;
 			constructor() public payable { shares = msg.value; }
-			function withdraw(uint amount) external returns (uint) {
+			function withdraw(uint amount) public protected returns (uint) {
 				// NOTE: It is very bad practice to write this function this way.
 				// Please refer to the documentation of how to do this properly.
 				if (amount > shares) throw;
@@ -9287,7 +9287,7 @@ BOOST_AUTO_TEST_CASE(mutex)
 				shares -= amount;
 				return shares;
 			}
-			function withdrawUnprotected(uint amount) external returns (uint) {
+			function withdrawUnprotected(uint amount) public returns (uint) {
 				// NOTE: It is very bad practice to write this function this way.
 				// Please refer to the documentation of how to do this properly.
 				if (amount > shares) throw;
