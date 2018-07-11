@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(view_function)
 	char const* sourceCode = R"(
 		contract test {
 			function foo(uint a, uint b) public returns (uint d) { return a + b; }
-			function boo(uint32 a) public view returns(uint b) { return a * 4; }
+			function boo(uint32 a) view returns(uint b) { return a * 4; }
 		}
 	)";
 
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(pure_function)
 	char const* sourceCode = R"(
 		contract test {
 			function foo(uint a, uint b) public returns (uint d) { return a + b; }
-			function boo(uint32 a) public pure returns (uint b) { return a * 4; }
+			function boo(uint32 a) pure returns(uint b) { return a * 4; }
 		}
 	)";
 
@@ -616,7 +616,7 @@ BOOST_AUTO_TEST_CASE(constructor_abi)
 {
 	char const* sourceCode = R"(
 		contract test {
-			constructor(uint param1, test param2, bool param3) public {}
+			constructor(uint param1, test param2, bool param3) {}
 		}
 	)";
 
@@ -648,7 +648,7 @@ BOOST_AUTO_TEST_CASE(payable_constructor_abi)
 {
 	char const* sourceCode = R"(
 		contract test {
-			constructor(uint param1, test param2, bool param3) public payable {}
+			constructor(uint param1, test param2, bool param3) payable {}
 		}
 	)";
 
@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE(return_param_in_abi)
 	char const* sourceCode = R"(
 		contract test {
 			enum ActionChoices { GoLeft, GoRight, GoStraight, Sit }
-			constructor(ActionChoices param) public {}
+			constructor(ActionChoices param) {}
 			function ret() public returns (ActionChoices) {
 				ActionChoices action = ActionChoices.GoLeft;
 				return action;
@@ -807,8 +807,8 @@ BOOST_AUTO_TEST_CASE(payable_function)
 {
 	char const* sourceCode = R"(
 		contract test {
-			function f() public {}
-			function g() public payable {}
+			function f() {}
+			function g() payable {}
 		}
 	)";
 
@@ -861,7 +861,7 @@ BOOST_AUTO_TEST_CASE(function_type)
 {
 	char const* sourceCode = R"(
 		contract test {
-			function g(function(uint) external returns (uint) x) public {}
+			function g(function(uint) external returns (uint) x) {}
 		}
 	)";
 
@@ -1041,8 +1041,8 @@ BOOST_AUTO_TEST_CASE(structs_in_libraries)
 		library L {
 			struct S { uint a; T[] sub; bytes b; }
 			struct T { uint[2] x; }
-			function f(L.S storage s) public {}
-			function g(L.S s) public {}
+			function f(L.S storage s) {}
+			function g(L.S s) {}
 		}
 	)";
 	char const* interface = R"(
