@@ -24,8 +24,8 @@ Creating contracts programmatically on Ethereum is best done via using the JavaS
 As of today it has a method called `web3.eth.Contract <https://web3js.readthedocs.io/en/1.0/web3-eth-contract.html#new-contract>`_
 to facilitate contract creation.
 
-When a contract is created, its constructor (a function declared with the
-``constructor`` keyword) is executed once.
+When a contract is created, its constructor (a function declared with the ``constructor`` keyword) is executed once, including any code in the constructor.
+
 A constructor is optional. Only one constructor is allowed, and this means
 overloading is not supported.
 
@@ -284,8 +284,23 @@ It will generate a function of the following form::
         b = data[arg1][arg2][arg3].b;
     }
 
-Note that the mapping in the struct is omitted because there
-is no good way to provide the key for the mapping.
+If you have a `public` state variable of array type, then it only returns individual elements to reduce the gas cost of returning an entire array. You can use parameters to specify which element to return, for example ``data[0]``. If you want to return an entire array, then you need to write a helper function, for example::
+
+    // public state variable
+    uint[] public myArray;
+
+    // caller function
+    function myArray(uint i) returns (uint) {
+        return myArray[i];
+    }
+
+    // helper function
+    function getArray() returns ( uint[] ) {
+        return myArray;
+    }
+
+.. note::
+    The mapping in the struct is omitted because there is no good way to provide the key for the mapping.
 
 .. index:: ! function;modifier
 
@@ -992,10 +1007,10 @@ virtual method lookup.
 
 Constructors
 ============
+
 A constructor is an optional function declared with the ``constructor`` keyword which is executed upon contract creation.
 Constructor functions can be either ``public`` or ``internal``. If there is no constructor, the contract will assume the
-default constructor: ``contructor() public {}``.
-
+default constructor: ``constructor() public {}``.
 
 ::
 
@@ -1014,6 +1029,8 @@ default constructor: ``contructor() public {}``.
     }
 
 A constructor set as ``internal`` causes the contract to be marked as :ref:`abstract <abstract-contract>`.
+
+A constructor returns the code of the contract, calculating the gas cost depending on the length of the code. The supplied gas may not be enough for this cost, and this is the only situation where an "out of gas" exception does not revert changes to the state, in this case the initialisation of the state variables.
 
 .. warning ::
     Prior to version 0.4.22, constructors were defined as functions with the same name as the contract. This syntax was deprecated and is not allowed anymore in version 0.5.0.
