@@ -716,7 +716,10 @@ bool TypeChecker::visit(VariableDeclaration const& _variable)
 	// type is filled either by ReferencesResolver directly from the type name or by
 	// TypeChecker at the VariableDeclarationStatement level.
 	TypePointer varType = _variable.annotation().type;
-	solAssert(!!varType, "Failed to infer variable type.");
+	if (!varType)
+		// Failed to infer variable type.
+		return true;
+
 	if (_variable.value())
 		expectType(*_variable.value(), *varType);
 	if (_variable.isConstant())
@@ -1087,10 +1090,21 @@ bool TypeChecker::visit(VariableDeclarationStatement const& _statement)
 	{
 		// No initial value is only permitted for single variables with specified type.
 		if (_statement.declarations().size() != 1 || !_statement.declarations().front())
-			m_errorReporter.fatalTypeError(_statement.location(), "Assignment necessary for type detection.");
+		{
+			m_errorReporter.syntaxError(_statement.location(), "Use of the \"var\" keyword is disallowed.");
+			// there is nothing else to check, so we can safely early return at this point.
+			return true;
+		}
+
 		VariableDeclaration const& varDecl = *_statement.declarations().front();
 		if (!varDecl.annotation().type)
-			m_errorReporter.fatalTypeError(_statement.location(), "Assignment necessary for type detection.");
+		{
+			m_errorReporter.syntaxError(_statement.location(), "Use of the \"var\" keyword is disallowed");
+			//varDecl.accept(*this);
+			// there is nothing else to check, so we can safely early return at this point.
+			return true;
+		}
+
 		if (auto ref = dynamic_cast<ReferenceType const*>(type(varDecl).get()))
 		{
 			if (ref->dataStoredIn(DataLocation::Storage))
