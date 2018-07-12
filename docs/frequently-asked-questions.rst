@@ -9,17 +9,6 @@ This list was originally compiled by `fivedogit <mailto:fivedogit@gmail.com>`_.
 Basic Questions
 ***************
 
-Is it possible to do something on a specific block number? (e.g. publish a contract or execute a transaction)
-=============================================================================================================
-
-Transactions are not guaranteed to happen on the next block or any future
-specific block, since it is up to the miners to include transactions and not up
-to the submitter of the transaction. This applies to function calls/transactions and contract
-creation transactions.
-
-If you want to schedule future calls of your contract, you can use the
-`alarm clock <http://www.ethereum-alarm-clock.com/>`_.
-
 What is the transaction "payload"?
 ==================================
 
@@ -39,29 +28,6 @@ several blockchain explorers.
 
 Contracts on the blockchain should have their original source
 code published if they are to be used by third parties.
-
-Create a contract that can be killed and return funds
-=====================================================
-
-First, a word of warning: Killing contracts sounds like a good idea, because "cleaning up"
-is always good, but as seen above, it does not really clean up. Furthermore,
-if Ether is sent to removed contracts, the Ether will be forever lost.
-
-If you want to deactivate your contracts, it is preferable to **disable** them by changing some
-internal state which causes all functions to throw. This will make it impossible
-to use the contract and ether sent to the contract will be returned automatically.
-
-Now to answering the question: Inside a constructor, ``msg.sender`` is the
-creator. Save it. Then ``selfdestruct(creator);`` to kill and return funds.
-
-`example <https://github.com/fivedogit/solidity-baby-steps/blob/master/contracts/05_greeter.sol>`_
-
-Note that if you ``import "mortal"`` at the top of your contracts and declare
-``contract SomeContract is mortal { ...`` and compile with a compiler that already
-has it (which includes `Remix <https://remix.ethereum.org/>`_), then
-``kill()`` is taken care of for you. Once a contract is "mortal", then you can
-``contractname.kill.sendTransaction({from:eth.coinbase})``, just the same as my
-examples.
 
 Can you return an array or a ``string`` from a solidity function call?
 ======================================================================
@@ -182,11 +148,6 @@ arguments for you.
 See `ping.sol <https://github.com/fivedogit/solidity-baby-steps/blob/master/contracts/45_ping.sol>`_ and
 `pong.sol <https://github.com/fivedogit/solidity-baby-steps/blob/master/contracts/45_pong.sol>`_.
 
-Is unused gas automatically refunded?
-=====================================
-
-Yes and it is immediate, i.e. done as part of the transaction.
-
 When returning a value of say ``uint`` type, is it possible to return an ``undefined`` or "null"-like value?
 ============================================================================================================
 
@@ -247,8 +208,6 @@ block explorer do not show Ether sent between contracts correctly.
 What is the ``memory`` keyword? What does it do?
 ================================================
 
-The Ethereum Virtual Machine has three areas where it can store items.
-
 The first is "storage", where all the contract state variables reside.
 Every contract has its own storage and it is persistent between function calls
 and quite expensive to use.
@@ -259,22 +218,11 @@ is erased between (external) function calls and is cheaper to use.
 The third one is the stack, which is used to hold small local variables.
 It is almost free to use, but can only hold a limited amount of values.
 
-For almost all types, you cannot specify where they should be stored, because
-they are copied every time they are used.
-
 The types where the so-called storage location is important are structs
 and arrays. If you e.g. pass such variables in function calls, their
 data is not copied if it can stay in memory or stay in storage.
 This means that you can modify their content in the called function
 and these modifications will still be visible in the caller.
-
-There are defaults for the storage location depending on which type
-of variable it concerns:
-
-* state variables are always in storage
-* function arguments are in memory by default
-* local variables of struct, array or mapping type reference storage by default
-* local variables of value type (i.e. neither array, nor struct nor mapping) are stored in the stack
 
 Example::
 

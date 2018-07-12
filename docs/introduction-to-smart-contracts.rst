@@ -260,6 +260,10 @@ blocks that are added on top, the less likely it is. So it might be that your tr
 are reverted and even removed from the blockchain, but the longer you wait, the less
 likely it will be.
 
+.. note::
+    Transactions are not guaranteed to happen on the next block or any future specific block, since it is up to the miners to include transactions and not the submitter of the transaction. This applies to function calls and contract creation transactions.
+
+    If you want to schedule future calls of your contract, you can use the `alarm clock <http://www.ethereum-alarm-clock.com/>`_.
 
 .. _the-ethereum-virtual-machine:
 
@@ -352,15 +356,19 @@ If the gas is used up at any point (i.e. it is negative),
 an out-of-gas exception is triggered, which reverts all modifications
 made to the state in the current call frame.
 
+Any unused gas is refunded at the end of the transaction.
+
 .. index:: ! storage, ! memory, ! stack
 
 Storage, Memory and the Stack
 =============================
 
-Each account has a persistent memory area which is called **storage**.
+The Ethereum Virtual Machine has three areas where it can store items.
+
+Each account has a memory area called **storage**, which is persistent between function calls.
 Storage is a key-value store that maps 256-bit words to 256-bit words.
 It is not possible to enumerate storage from within a contract
-and it is comparatively costly to read and even more so, to modify
+and it is comparatively costly to read and to modify
 storage. A contract can neither read nor write to any storage apart
 from its own.
 
@@ -384,6 +392,16 @@ the operation) elements from the stack and push the result onto the stack.
 Of course it is possible to move stack elements to storage or memory,
 but it is not possible to just access arbitrary elements deeper in the stack
 without first removing the top of the stack.
+
+For almost all :doc:`types`, you cannot specify where they should be stored, because
+they are copied every time they are used.
+
+There are defaults for the storage location depending on the variable type:
+
+* state variables are in storage.
+* function arguments are in memory.
+* local variables of struct, array or mapping type are in storage.
+* local variables of value type (i.e. neither array, nor struct nor mapping) are in the stack.
 
 .. index:: ! instruction
 
@@ -412,7 +430,7 @@ a top-level message call which in turn can create further message calls.
 A contract can decide how much of its remaining **gas** should be sent
 with the inner message call and how much it wants to retain.
 If an out-of-gas exception happens in the inner call (or any
-other exception), this will be signalled by an error value put onto the stack.
+other exception), this will be signaled by an error value put onto the stack.
 In this case, only the gas sent together with the call is used up.
 In Solidity, the calling contract causes a manual exception by default in
 such situations, so that exceptions "bubble up" the call stack.
@@ -470,21 +488,20 @@ these **create calls** and normal message calls is that the payload data is
 executed and the result stored as code and the caller / creator
 receives the address of the new contract on the stack.
 
-.. index:: selfdestruct
+.. index:: self-destruct, deactivate
 
-Self-destruct
-=============
+Deactivate and Self-destruct
+============================
 
-The only possibility that code is removed from the blockchain is
-when a contract at that address performs the ``selfdestruct`` operation.
-The remaining Ether stored at that address is sent to a designated
-target and then the storage and code is removed from the state.
+The only way to remove code from the blockchain is when a contract at that address performs the ``selfdestruct`` operation. The remaining Ether stored at that address is sent to a designated target and then the storage and code is removed from the state. Removing the contract in theory sounds like a good idea, but is potentially dangerous as if someone sends Ether to removed contracts, the Ether is forever lost.
 
-.. warning:: Even if a contract's code does not contain a call to ``selfdestruct``,
-  it can still perform that operation using ``delegatecall`` or ``callcode``.
+.. note::
+    Even if a contract's code does not contain a call to ``selfdestruct``, it can still perform that operation using ``delegatecall`` or ``callcode``.
 
-.. note:: The pruning of old contracts may or may not be implemented by Ethereum
-  clients. Additionally, archive nodes could choose to keep the contract storage
-  and code indefinitely.
+If you want to deactivate your contracts, you should instead **disable** them by changing some internal state which causes all functions to revert. This makes it impossible to use the contract it returns ether immediately.
 
-.. note:: Currently **external accounts** cannot be removed from the state.
+.. note::
+    You cannot remove **external accounts** from the state.
+
+.. note::
+    The pruning of old contracts may not be implemented by Ethereum clients. Additionally, archive nodes could choose to keep the contract storage and code indefinitely.
