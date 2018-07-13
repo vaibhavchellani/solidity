@@ -263,7 +263,7 @@ likely it will be.
 .. note::
     Transactions are not guaranteed to happen on the next block or any future specific block, since it is up to the miners to include transactions and not the submitter of the transaction. This applies to function calls and contract creation transactions.
 
-    If you want to schedule future calls of your contract, you can use the `alarm clock <http://www.ethereum-alarm-clock.com/>`_.
+    If you want to schedule future calls of your contract, you can use the `alarm clock <http://www.ethereum-alarm-clock.com/>`_ service.
 
 .. _the-ethereum-virtual-machine:
 
@@ -363,16 +363,14 @@ Any unused gas is refunded at the end of the transaction.
 Storage, Memory and the Stack
 =============================
 
-The Ethereum Virtual Machine has three areas where it can store items.
+The Ethereum Virtual Machine has three areas where it can store data.
 
-Each account has a memory area called **storage**, which is persistent between function calls.
+Each account has a data area called **storage**, which is persistent between function calls.
 Storage is a key-value store that maps 256-bit words to 256-bit words.
-It is not possible to enumerate storage from within a contract
-and it is comparatively costly to read and to modify
-storage. A contract can neither read nor write to any storage apart
-from its own.
+It is not possible to enumerate storage from within a contract and it is comparatively costly to read, and even more to modify storage.
+A contract can neither read nor write to any storage apart from its own.
 
-The second memory area is called **memory**, of which a contract obtains
+The second data area is called **memory**, of which a contract obtains
 a freshly cleared instance for each message call. Memory is linear and can be
 addressed at byte level, but reads are limited to a width of 256 bits, while writes
 can be either 8 bits or 256 bits wide. Memory is expanded by a word (256-bit), when
@@ -381,7 +379,7 @@ within a word). At the time of expansion, the cost in gas must be paid. Memory i
 costly the larger it grows (it scales quadratically).
 
 The EVM is not a register machine but a stack machine, so all
-computations are performed on an area called the **stack**. It has a maximum size of
+computations are performed on an data rea called the **stack**. It has a maximum size of
 1024 elements and contains words of 256 bits. Access to the stack is
 limited to the top end in the following way:
 It is possible to copy one of
@@ -392,16 +390,6 @@ the operation) elements from the stack and push the result onto the stack.
 Of course it is possible to move stack elements to storage or memory,
 but it is not possible to just access arbitrary elements deeper in the stack
 without first removing the top of the stack.
-
-For almost all :doc:`types`, you cannot specify where they should be stored, because
-they are copied every time they are used.
-
-There are defaults for the storage location depending on the variable type:
-
-* state variables are in storage.
-* function arguments are in memory.
-* local variables of struct, array or mapping type are in storage.
-* local variables of value type (i.e. neither array, nor struct nor mapping) are in the stack.
 
 .. index:: ! instruction
 
@@ -488,20 +476,17 @@ these **create calls** and normal message calls is that the payload data is
 executed and the result stored as code and the caller / creator
 receives the address of the new contract on the stack.
 
-.. index:: self-destruct, deactivate
+.. index:: selfdestruct, self-destruct, deactivate
 
 Deactivate and Self-destruct
 ============================
 
-The only way to remove code from the blockchain is when a contract at that address performs the ``selfdestruct`` operation. The remaining Ether stored at that address is sent to a designated target and then the storage and code is removed from the state. Removing the contract in theory sounds like a good idea, but is potentially dangerous as if someone sends Ether to removed contracts, the Ether is forever lost.
+The only way to remove code from the blockchain is when a contract at that address performs the ``selfdestruct`` operation. The remaining Ether stored at that address is sent to a designated target and then the storage and code is removed from the state. Removing the contract in theory sounds like a good idea, but it is potentially dangerous, as if someone sends Ether to removed contracts, the Ether is forever lost.
 
 .. note::
     Even if a contract's code does not contain a call to ``selfdestruct``, it can still perform that operation using ``delegatecall`` or ``callcode``.
 
-If you want to deactivate your contracts, you should instead **disable** them by changing some internal state which causes all functions to revert. This makes it impossible to use the contract it returns ether immediately.
+If you want to deactivate your contracts, you should instead **disable** them by changing some internal state which causes all functions to revert. This makes it impossible to use the contract, as it returns Ether immediately.
 
-.. note::
-    You cannot remove **external accounts** from the state.
-
-.. note::
-    The pruning of old contracts may not be implemented by Ethereum clients. Additionally, archive nodes could choose to keep the contract storage and code indefinitely.
+.. warning::
+    Even if a contract is removed by "selfdestruct", it is still part of the history of the blockchain and probably retained by most Ethereum nodes. So using "selfdestruct" is not the same as deleting data from a hard disk.
