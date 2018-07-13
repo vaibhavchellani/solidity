@@ -62,6 +62,7 @@ Compiler Features:
  * Code Generator: Allocate and free local variables according to their scope.
 
 Bugfixes:
+ * Name Resolver: Do not exclude public state variables when looking for conflicting declarations.
  * Tests: Fix chain parameters to make ipc tests work with newer versions of cpp-ethereum.
  * Code Generator: Fix allocation of byte arrays (zeroed out too much memory).
  * Fix NatSpec json output for `@notice` and `@dev` tags on contract definitions.
