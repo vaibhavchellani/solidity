@@ -51,6 +51,11 @@ using FunctionTypePointer = std::shared_ptr<FunctionType const>;
 using TypePointers = std::vector<TypePointer>;
 using rational = boost::rational<dev::bigint>;
 
+struct ElementaryTypes {
+	IntegerType Address;
+	ArrayType BytesMemory;
+	ArrayType StringMemory;
+}
 
 enum class DataLocation { Storage, CallData, Memory };
 
