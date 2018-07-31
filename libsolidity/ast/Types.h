@@ -51,17 +51,6 @@ using FunctionTypePointer = std::shared_ptr<FunctionType const>;
 using TypePointers = std::vector<TypePointer>;
 using rational = boost::rational<dev::bigint>;
 
-struct ElementaryTypes
-{
-	static IntegerType Address;
-	// static const Type BytesMemory;
-	// static const Type StringMemory;
-	ElementaryTypes()
-	{
-		Address = IntegerType(160, IntegerType::Modifier::Address);
-	};
-};
-
 enum class DataLocation
 {
 	Storage,
@@ -388,6 +377,17 @@ private:
 	unsigned m_bits;
 	Modifier m_modifier;
 };
+struct ElementaryTypes
+{
+	static IntegerType Address;
+	// static const ArrayType BytesMemory;
+	// static const ArrayType StringMemory;
+	// ElementaryTypes()
+	// {
+	// 	Address = IntegerType(160, IntegerType::Modifier::Address);
+	// };
+};
+IntegerType ElementaryTypes::Address = IntegerType(160, IntegerType::Modifier::Address);
 
 /**
  * A fixed point type number (signed, unsigned).
